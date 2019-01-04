@@ -1,20 +1,20 @@
 PACKAGE=qt
-$(package)_version=5.9.7
-$(package)_download_path=https://download.qt.io/official_releases/qt/5.9/$($(package)_version)/submodules
+$(package)_version=5.9.1
+$(package)_download_path=https://download.qt.io/archive/qt/5.9/$($(package)_version)/submodules
 $(package)_suffix=opensource-src-$($(package)_version).tar.xz
 $(package)_file_name=qtbase-$($(package)_suffix)
-$(package)_sha256_hash=36dd9574f006eaa1e5af780e4b33d11fe39d09fd7c12f3b9d83294174bd28f00
+$(package)_sha256_hash=bc9a21e9f6fff9629019fdf9f989f064751d5073c3a28dc596def92f4d4275c6
 $(package)_dependencies=openssl zlib
 $(package)_linux_dependencies=freetype fontconfig libxcb libX11 xproto libXext
 $(package)_build_subdir=qtbase
 $(package)_qt_libs=corelib network widgets gui plugins testlib
-$(package)_patches=fix_qt_pkgconfig.patch mac-qmake.conf fix_configure_mac.patch fix_no_printer.patch fix_rcc_determinism.patch fix_riscv64_arch.patch xkb-default.patch
+$(package)_patches=mac-qmake.conf aarch32-qmake.conf aarch64-qmake.conf qt5-qtbase-5.9.1-openssl11.patch 0086-Fix-detection-of-AT-SPI.patch qtbase-multilib_optflags.patch qtbase-opensource-src-5.3.2-QTBUG-35459.patch qtbase-opensource-src-5.8.0-QT_VERSION_CHECK.patch qtbase-hidpi_scale_at_192.patch qtbase-opensource-src-5.7.1-moc_macros.patch qt5-qtbase-cxxflag.patch qt5-qtbase-5.9.1-firebird.patch qtbase-opensource-src-5.9.0-mysql.patch 0086-Fix-detection-of-AT-SPI.patch 0502-Only-call-mysql_library_end-once-when-using-MariaDB.patch fix_riscv64_arch.patch fix_qt_pkgconfig.patch fix_rcc_determinism.patch xkb-default.patch fix_no_printer.patch
 
 $(package)_qttranslations_file_name=qttranslations-$($(package)_suffix)
-$(package)_qttranslations_sha256_hash=b36da7d93c3ab6fca56b32053bb73bc619c8b192bb89b74e3bcde2705f1c2a14
+$(package)_qttranslations_sha256_hash=4a12528a14ed77f31672bd7469cad30624e7b672f241b8f19ad59510298eb269
 
 $(package)_qttools_file_name=qttools-$($(package)_suffix)
-$(package)_qttools_sha256_hash=d62e0f70d99645d6704dbb8976fb2222443061743689943d40970c52c49367a1
+$(package)_qttools_sha256_hash=c4eb56cf24a75661b8317b566be37396c90357b4f6730ef12b8c97a7079ca0e8
 
 $(package)_extra_sources  = $($(package)_qttranslations_file_name)
 $(package)_extra_sources += $($(package)_qttools_file_name)
@@ -102,11 +102,12 @@ $(package)_config_opts_linux += -system-freetype
 $(package)_config_opts_linux += -no-feature-sessionmanager
 $(package)_config_opts_linux += -fontconfig
 $(package)_config_opts_linux += -no-opengl
-$(package)_config_opts_arm_linux += -platform linux-g++ -xplatform bitcoin-linux-g++
+$(package)_config_opts_arm_linux += -platform linux-g++ -xplatform ion-linux-g++
+
 $(package)_config_opts_i686_linux  = -xplatform linux-g++-32
 $(package)_config_opts_x86_64_linux = -xplatform linux-g++-64
 $(package)_config_opts_aarch64_linux = -xplatform linux-aarch64-gnu-g++
-$(package)_config_opts_riscv64_linux = -platform linux-g++ -xplatform bitcoin-linux-g++
+$(package)_config_opts_riscv64_linux = -platform linux-g++ -xplatform ion-linux-g++
 $(package)_config_opts_mingw32  = -no-opengl -xplatform win32-g++ -device-option CROSS_COMPILE="$(host)-"
 $(package)_build_env  = QT_RCC_TEST=1
 $(package)_build_env += QT_RCC_SOURCE_DATE_OVERRIDE=1
@@ -145,13 +146,23 @@ define $(package)_preprocess_cmds
   cp -f qtbase/mkspecs/macx-clang/Info.plist.app qtbase/mkspecs/macx-clang-linux/ &&\
   cp -f qtbase/mkspecs/macx-clang/qplatformdefs.h qtbase/mkspecs/macx-clang-linux/ &&\
   cp -f $($(package)_patch_dir)/mac-qmake.conf qtbase/mkspecs/macx-clang-linux/qmake.conf && \
-  cp -r qtbase/mkspecs/linux-arm-gnueabi-g++ qtbase/mkspecs/bitcoin-linux-g++ && \
-  sed -i.old "s/arm-linux-gnueabi-/$(host)-/g" qtbase/mkspecs/bitcoin-linux-g++/qmake.conf && \
+  cp -r qtbase/mkspecs/linux-arm-gnueabi-g++ qtbase/mkspecs/ion-linux-g++ && \
+  sed -i.old "s/arm-linux-gnueabi-/$(host)-/g" qtbase/mkspecs/ion-linux-g++/qmake.conf && \
   patch -p1 -i $($(package)_patch_dir)/fix_qt_pkgconfig.patch &&\
-  patch -p1 -i $($(package)_patch_dir)/fix_configure_mac.patch &&\
   patch -p1 -i $($(package)_patch_dir)/fix_no_printer.patch &&\
   patch -p1 -i $($(package)_patch_dir)/fix_rcc_determinism.patch &&\
   patch -p1 -i $($(package)_patch_dir)/xkb-default.patch &&\
+  patch -p1 -i $($(package)_patch_dir)/qtbase-multilib_optflags.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qtbase-opensource-src-5.3.2-QTBUG-35459.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qtbase-opensource-src-5.8.0-QT_VERSION_CHECK.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qtbase-hidpi_scale_at_192.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qtbase-opensource-src-5.7.1-moc_macros.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qt5-qtbase-cxxflag.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qt5-qtbase-5.9.1-openssl11.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qt5-qtbase-5.9.1-firebird.patch && \
+  patch -p1 -i $($(package)_patch_dir)/qtbase-opensource-src-5.9.0-mysql.patch && \
+  patch -p1 -i $($(package)_patch_dir)/0086-Fix-detection-of-AT-SPI.patch && \
+  patch -p1 -i $($(package)_patch_dir)/0502-Only-call-mysql_library_end-once-when-using-MariaDB.patch && \
   echo "!host_build: QMAKE_CFLAGS     += $($(package)_cflags) $($(package)_cppflags)" >> qtbase/mkspecs/common/gcc-base.conf && \
   echo "!host_build: QMAKE_CXXFLAGS   += $($(package)_cxxflags) $($(package)_cppflags)" >> qtbase/mkspecs/common/gcc-base.conf && \
   echo "!host_build: QMAKE_LFLAGS     += $($(package)_ldflags)" >> qtbase/mkspecs/common/gcc-base.conf && \

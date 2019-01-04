@@ -8,12 +8,12 @@
 
  #ifndef QT_NO_PRINTER
 
---- x/qtbase/src/plugins/plugins.pro
-+++ y/qtbase/src/plugins/plugins.pro
-@@ -8,6 +8,3 @@ qtHaveModule(gui) {
+--- old/qtbase/src/plugins/plugins.pro	2017-06-28 10:54:29.000000000 +0100
++++ new/qtbase/src/plugins/plugins.pro	2019-01-02 16:29:41.817231643 +0000
+@@ -8,6 +8,3 @@
      qtConfig(imageformatplugin): SUBDIRS *= imageformats
      !android:qtConfig(library): SUBDIRS *= generic
  }
 -
--!winrt:qtHaveModule(printsupport): \
+-!winrt:!wince:qtHaveModule(printsupport): \
 -    SUBDIRS += printsupport

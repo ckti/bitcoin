@@ -1,0 +1,16 @@
+diff --git a/src/gui/configure.json b/src/gui/configure.json
+index a2a78aa..ef7ba51 100644
+--- old/qtbase/src/gui/configure.json
++++ new/qtbase/src/gui/configure.json
+@@ -434,7 +434,7 @@
+     "features": {
+         "accessibility-atspi-bridge": {
+             "label": "ATSPI Bridge",
+-            "condition": "features.accessibility && features.xcb && features.dbus && config.atspi",
++            "condition": "features.accessibility && features.xcb && features.dbus && libs.atspi",
+             "output": [ "privateFeature", "feature" ]
+         },
+         "angle": {
+-- 
+2.9.4
+
